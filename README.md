@@ -230,7 +230,7 @@ If you use this framework in your research:
 @misc{proteofunc2024,
   title  = {ProteoFunc: Multimodal Protein Function Prediction via ESM-2 and GraphSAGE},
   author = {Usama Raheem},
-  year   = {2024},
+  year   = {2026},
   note   = {GitHub repository: https://github.com/UsamaRaheem008/ProteoFunc}
 }
 ```
