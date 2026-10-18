@@ -1142,13 +1142,17 @@ with tab_eval:
         st.markdown('<div class="section-header">🥊 Model Comparison</div>', unsafe_allow_html=True)
         comp_df = pd.read_csv(comp_path, index_col=0)
         comp_df.index = [MODEL_LABELS.get(m, m) for m in comp_df.index]
+        comp_df.index.name = "Model"
         st.dataframe(comp_df.round(4), use_container_width=True)
 
         num_cols = [c for c in comp_df.columns if comp_df[c].dtype in [float, "float64"]]
         if num_cols:
             show_metrics = [c for c in ["fmax", "auroc", "aupr", "micro_f1", "macro_f1"] if c in num_cols]
             if show_metrics:
-                comp_long = comp_df[show_metrics].reset_index().melt(id_vars="Model", var_name="Metric", value_name="Value")
+                comp_sub = comp_df[show_metrics].reset_index()
+                first_col = comp_sub.columns[0]
+                comp_long = comp_sub.melt(id_vars=first_col, var_name="Metric", value_name="Value")
+                comp_long = comp_long.rename(columns={first_col: "Model"})
                 fig = px.bar(
                     comp_long, x="Metric", y="Value", color="Model", barmode="group",
                     color_discrete_sequence=["#7c3aed", "#3b82f6", "#10b981"],
