@@ -59,19 +59,21 @@ ProteoFunc files info.*
 ProteoFunc_Files_Info.*
 SUPERVISOR_UPDATE.md
 
-# 4. Large Datasets & Binary Data (>100MB exceeds GitHub hard limit)
-data/
+# 4. Large Datasets & Heavy Binaries (>25MB & GitHub limit)
+data/raw/
+data/embeddings/
+data/processed/*.pt
+data/processed/*.npy
+data/processed/proteins_clean.fasta
+data/processed/proteins_clean.tsv
 drive-download-*
-*.pt
-*.pth
-*.npy
-*.pkl
 *.gz
 
-# 5. Output Artifacts & Checkpoints
-ProteoFunc_outputs/
+# 5. Heavy Intermediate Checkpoints & Output Logs
+ProteoFunc_outputs/checkpoints/*epoch*.pt
+ProteoFunc_outputs/evaluation/*/*.npy
+ProteoFunc_outputs/logs/
 Proteofunc\ outputs\ final/
-Proteofunc*outputs*
 outputs/
 
 # 6. Python & Environment Artifacts

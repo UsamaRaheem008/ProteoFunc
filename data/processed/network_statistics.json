@@ -1,0 +1,14 @@
+{
+  "num_nodes": 17117,
+  "num_edges": 186242,
+  "density": 0.001271386787792628,
+  "num_connected_components": 3317,
+  "degree_mean": 21.76105625985862,
+  "degree_median": 8.0,
+  "degree_std": 38.27366360748981,
+  "degree_max": 646,
+  "degree_min": 0,
+  "isolated_nodes": 3232,
+  "num_hubs": 139,
+  "hub_threshold_degree": 211
+}

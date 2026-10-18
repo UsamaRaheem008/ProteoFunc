@@ -1,0 +1,101 @@
+{
+  "sequence_only_f1_mean": 0.26525895553926,
+  "sequence_only_f1_ci": [
+    0.257269162239916,
+    0.2727653500188606
+  ],
+  "network_only_f1_mean": 0.2439360209545199,
+  "network_only_f1_ci": [
+    0.23617821168514333,
+    0.2511689513262557
+  ],
+  "multimodal_f1_mean": 0.2604164059847274,
+  "multimodal_f1_ci": [
+    0.2525974636096826,
+    0.2681590975222768
+  ],
+  "bonferroni": {
+    "original_alpha": 0.05,
+    "corrected_alpha": 0.016666666666666666,
+    "n_tests": 3,
+    "p_values": [
+      1.4443231899880985e-24,
+      0.0003833066657762291,
+      1.58016047645786e-18
+    ],
+    "significant": [
+      true,
+      true,
+      true
+    ],
+    "n_significant": 3
+  },
+  "pairwise_comparisons": [
+    {
+      "model_a": "sequence_only",
+      "model_b": "network_only",
+      "ttest": {
+        "test": "paired_ttest",
+        "t_statistic": 10.336845699839476,
+        "p_value": 1.4443231899880985e-24,
+        "significant": true,
+        "alpha": 0.05,
+        "cohens_d": 0.20390199353089108,
+        "mean_diff": 0.021322934584740078,
+        "std_diff": 0.1045540819934889
+      },
+      "wilcoxon": {
+        "test": "wilcoxon",
+        "statistic": 1039202.0,
+        "p_value": 8.671853235186535e-25,
+        "significant": true,
+        "alpha": 0.05,
+        "n_samples": 2346
+      }
+    },
+    {
+      "model_a": "sequence_only",
+      "model_b": "multimodal",
+      "ttest": {
+        "test": "paired_ttest",
+        "t_statistic": 3.5560280027797995,
+        "p_value": 0.0003833066657762291,
+        "significant": true,
+        "alpha": 0.05,
+        "cohens_d": 0.07014530543197854,
+        "mean_diff": 0.0048425495545326575,
+        "std_diff": 0.06902254260335919
+      },
+      "wilcoxon": {
+        "test": "wilcoxon",
+        "statistic": 1182767.0,
+        "p_value": 9.495357470775275e-05,
+        "significant": true,
+        "alpha": 0.05,
+        "n_samples": 2285
+      }
+    },
+    {
+      "model_a": "network_only",
+      "model_b": "multimodal",
+      "ttest": {
+        "test": "paired_ttest",
+        "t_statistic": -8.851057214913377,
+        "p_value": 1.58016047645786e-18,
+        "significant": true,
+        "alpha": 0.05,
+        "cohens_d": -0.17459370715041636,
+        "mean_diff": -0.01648038503020742,
+        "std_diff": 0.09437441180777947
+      },
+      "wilcoxon": {
+        "test": "wilcoxon",
+        "statistic": 1099476.0,
+        "p_value": 4.8430532306452155e-15,
+        "significant": true,
+        "alpha": 0.05,
+        "n_samples": 2326
+      }
+    }
+  ]
+}
