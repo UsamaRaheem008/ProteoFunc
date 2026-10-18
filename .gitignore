@@ -1,0 +1,111 @@
+# ==========================================
+# ProteoFunc Git Ignore Configuration
+# ==========================================
+
+# 1. Presentation Generation Scripts & Output
+build_5slide_presentation.py
+build_9slide_presentation.py
+build_interactive_presentation.py
+generate_pptx.py
+ProteoFunc_Presentation.html
+*.pptx
+
+# 2. Dissertation, Report, Paper & Manuscript Generation Scripts
+build_and_compile_master_dissertation.py
+build_bioinformatics_oxford_docx.py
+build_complete_msc_dissertation.py
+build_full_12k_text.py
+build_full_13k_dissertation.py
+build_full_13k_humanized_dissertation.py
+build_full_dissertation.py
+build_full_humanized_dissertation_text.py
+build_publication_manuscript.py
+build_turnitin_ready_dissertation.py
+compile_manuscript.py
+create_12k_body.py
+create_full_humanized_text.py
+dissertation_chapters_part1.py
+dissertation_chapters_part2.py
+dissertation_full_text.py
+expand_dissertation_full_12k.py
+expand_dissertation_humanized.py
+generate_dissertation_word.py
+generate_docx_info.py
+generate_exhaustive_dissertation.py
+generate_final_word_dissertation.py
+generate_full_12k_dissertation.py
+generate_master_humanized_text.py
+generate_pdf_report.py
+generate_rich_full_text.py
+generate_scientific_reports_paper.py
+oxford_sections_text.py
+paper_sections_methods_refs.py
+paper_sections_results_discussion.py
+paper_sections_text.py
+sync_docx.py
+audit_characters.py
+audit_clean.py
+detailed_audit.py
+sanitize_all_sources.py
+
+# 3. Dissertation, Reports, Manuscripts & Office Documents
+*.docx
+*.pdf
+Dissertation report*
+BIOINFORMATICS_OXFORD_MANUSCRIPT.*
+SCIENTIFIC_REPORTS_MANUSCRIPT.*
+PROTEOFUNC_FINAL_RESEARCH_REPORT.*
+ProteoFunc files info.*
+ProteoFunc_Files_Info.*
+SUPERVISOR_UPDATE.md
+
+# 4. Large Datasets & Binary Data (>100MB exceeds GitHub hard limit)
+data/
+drive-download-*
+*.pt
+*.pth
+*.npy
+*.pkl
+*.gz
+
+# 5. Output Artifacts & Checkpoints
+ProteoFunc_outputs/
+Proteofunc\ outputs\ final/
+Proteofunc*outputs*
+outputs/
+
+# 6. Python & Environment Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+env/
+venv/
+ENV/
+
+# 7. IDE, OS, & Agent Temporary Files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+.gemini/

@@ -1,0 +1,214 @@
+# ====================================================================
+# Multimodal Protein Function Prediction  -  Master Configuration
+# ====================================================================
+
+project:
+  name: "Multimodal-Protein-Function-Prediction"
+  version: "1.0.0"
+  seed: 42
+  device: "auto"   # "auto", "cuda", "cpu"
+  mixed_precision: true
+  deterministic: true
+  num_workers: 0  # Must be 0 on Windows (multiprocessing spawn issue)
+
+# ------------------------------------------------------------------
+# Data Acquisition
+# ------------------------------------------------------------------
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  embeddings_dir: "data/embeddings"
+  cache_dir: "data/cache"
+
+  # UniProt settings
+  uniprot:
+    organism: "Homo sapiens"
+    taxonomy_id: 9606
+    reviewed: true
+    max_proteins: 15000
+    min_sequence_length: 50
+    max_sequence_length: 1200
+
+  # STRING settings
+  string:
+    version: "12.0"
+    species_id: 9606
+    confidence_threshold: 0.7
+    physical_only: false
+
+  # Gene Ontology settings
+  go:
+    namespaces:
+      - "molecular_function"
+      - "biological_process"
+      - "cellular_component"
+    min_annotations: 50     # minimum proteins per GO term (raised from 30 to drop very rare terms)
+    max_annotations: 3000   # maximum proteins per GO term (lowered from 5000 to drop overly general terms)
+    ic_threshold: 0.0       # information content threshold
+
+  # Data splitting
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+    stratified: true
+    seed: 42
+
+# ------------------------------------------------------------------
+# Model Architecture
+# ------------------------------------------------------------------
+model:
+  # Sequence encoder (ESM-2)
+  sequence_encoder:
+    model_name: "facebook/esm2_t33_650M_UR50D"  # Upgraded to 650M model for SOTA features
+    embedding_dim: 1280                        # 1280 for 650M model
+    pooling: "mean"         # "mean", "cls", "attention"
+    freeze: true
+    max_length: 512        # Shorter for memory safety on CPU/GPU
+    batch_size: 4          # Kept small for 650M memory safety
+
+  # Graph encoder (GAT / GraphSAGE)
+  graph_encoder:
+    type: "sage"             # "sage" (recommended for scalable full-graph training) or "gat"
+    input_dim: 1283         # ESM-2 (1280) + 3 centrality features (degree, betweenness, closeness)
+    hidden_dim: 512         # 512 for high capacity with low memory footprint
+    output_dim: 512         # 512 output embedding dim
+    num_layers: 2
+    aggregation: "mean"     # For SAGE ("mean", "max", "lstm")
+    heads: 4                # For GAT
+    dropout: 0.35
+    batch_norm: true
+    residual: true
+    num_neighbors: [25, 10]
+
+  # Fusion mechanism
+  fusion:
+    method: "residual_cross_attention"     # "concat", "weighted_sum", "attention", "gated", "cross_attention", "residual_cross_attention"
+    hidden_dim: 1280        # Adjusted for 650M embedding dim
+    num_heads: 8            # Increased heads for 1280 dim
+    dropout: 0.2
+
+  # Classification head
+  classifier:
+    hidden_dims: [512, 256]  # Scaled up for 1280 dim
+    dropout: 0.4
+    activation: "gelu"      # "gelu", "relu"
+    norm: "layernorm"        # "batchnorm", "layernorm"
+    residual: true           # Added residual connections for deeper MLP
+
+# ------------------------------------------------------------------
+# Training
+# ------------------------------------------------------------------
+training:
+  epochs: 120            # Increased to allow multimodal fusion to converge with lower graph LR
+  batch_size: 64
+  accumulation_steps: 1
+
+  optimizer:
+    name: "adamw"
+    lr: 1.0e-4
+    weight_decay: 1.0e-5
+    betas: [0.9, 0.999]
+    eps: 1.0e-8
+
+  scheduler:
+    name: "cosine"          # "cosine", "plateau", "step"
+    warmup_epochs: 5
+    min_lr: 1.0e-6
+    patience: 10            # for plateau scheduler
+    factor: 0.5             # for plateau scheduler
+
+  loss:
+    name: "asymmetric"      # Switched from "focal"  -  ASL handles extreme class imbalance better
+    gamma_neg: 4.0          # Harder penalty for easy negatives
+    gamma_pos: 1.0          #
+    focal_gamma: 3.0        # Kept for reference if switching back to focal
+    focal_alpha: 0.5        # Kept for reference if switching back to focal
+    pos_weight_cap: 10.0
+
+  early_stopping:
+    patience: 20
+    min_delta: 1.0e-4
+    monitor: "val_fmax"
+    mode: "max"
+
+  gradient_clipping:
+    max_norm: 1.0
+
+  checkpoint:
+    save_dir: "ProteoFunc_outputs/checkpoints"
+    save_best: true
+    save_every: 5
+
+# ------------------------------------------------------------------
+# Evaluation
+# ------------------------------------------------------------------
+evaluation:
+  threshold_range: [0.01, 0.99]
+  threshold_step: 0.01
+  top_k: [5, 10, 20]
+  
+  metrics:
+    - "fmax"
+    - "smin"
+    - "aupr"
+    - "auroc"
+    - "micro_f1"
+    - "macro_f1"
+    - "hamming_loss"
+
+  stratified_analysis:
+    - "go_category"
+    - "sequence_homology"
+    - "network_connectivity"
+    - "hub_status"
+    - "degree_centrality"
+
+  statistical:
+    alpha: 0.05
+    correction: "bonferroni"
+    num_bootstrap: 1000
+
+# ------------------------------------------------------------------
+# Explainability
+# ------------------------------------------------------------------
+explainability:
+  attention:
+    save_heatmaps: true
+  gnn_explainer:
+    epochs: 200
+    lr: 0.01
+    top_k_edges: 10
+    top_k_nodes: 5
+  integrated_gradients:
+    n_steps: 50
+  shap:
+    n_samples: 100
+  case_studies:
+    - "P04637"   # TP53
+    - "P38398"   # BRCA1
+    - "P42345"   # MTOR
+    - "P00533"   # EGFR
+    - "P31749"   # AKT1
+
+# ------------------------------------------------------------------
+# Web Application
+# ------------------------------------------------------------------
+app:
+  title: "ProteoFunc  -  Multimodal Protein Function Predictor"
+  host: "0.0.0.0"
+  port: 8501
+  max_sequence_length: 2000
+  default_top_k: 10
+
+# ------------------------------------------------------------------
+# Logging
+# ------------------------------------------------------------------
+logging:
+  level: "INFO"
+  log_dir: "ProteoFunc_outputs/logs"
+  tensorboard: true
+  wandb:
+    enabled: false
+    project: "protein-function-prediction"
+    entity: null

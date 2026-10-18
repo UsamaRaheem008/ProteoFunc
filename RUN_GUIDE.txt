@@ -1,0 +1,102 @@
+================================================================================
+⚡ PROTEOFUNC: COMPLETE STEP-BY-STEP EXECUTION GUIDE
+================================================================================
+Multimodal Protein Function Prediction Framework
+ESM-2 Sequences x Graph Attention / GraphSAGE PPI Networks -> GO Functions
+
+Target Hardware: NVIDIA A100-SXM4-80GB (or GPU / CPU)
+Python Environment: Python 3.11 with PyTorch & PyG
+
+================================================================================
+📋 MASTER PIPELINE (STEP-BY-STEP EXECUTION)
+================================================================================
+
+--- STEP 1: EXTRACT ESM-2 SEQUENCE EMBEDDINGS (~5-10 min) ---
+Extracts protein sequence representations using ESM-2 (must run before graph):
+
+  $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; & "python" run_pipeline.py --stage embeddings
+
+
+--- STEP 2: BUILD PPI GRAPH WITH NODE FEATURES (~1-2 min) ---
+Builds the 186,242-edge high-confidence STRING PPI network with ESM-2 embeddings & centrality:
+
+  $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; & "python" run_pipeline.py --stage graph
+
+
+--- STEP 3: ASSEMBLE DATASETS & STRATIFIED SPLITS (~1 min) ---
+Creates Train (70%), Val (15%), and Test (15%) splits aligned with graph nodes:
+
+  $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; & "python" run_pipeline.py --stage dataset
+
+
+--- STEP 4: TRAIN MODELS INDIVIDUALLY (RUN ONE BY ONE) ---
+
+  [4a] TRAIN SEQUENCE-ONLY BASELINE MODEL (~25-30 min):
+  (ESM-2 Embeddings -> MLP Classifier)
+  *NOTE*: If sequence_only already finished and saved checkpoints, you can SKIP this!
+
+    $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; $env:PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"; & "python" training/train.py --config configs/config.yaml --model sequence_only
+
+
+  [4b] TRAIN NETWORK-ONLY BASELINE MODEL (~15-20 min):
+  (186k PPI Graph -> GAT/GraphSAGE Encoder -> MLP Classifier)
+
+    $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; $env:PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"; & "python" training/train.py --config configs/config.yaml --model network_only
+
+
+  [4c] TRAIN MULTIMODAL MODEL (SPFP) (~20-25 min):
+  (ESM-2 Sequence + 186k PPI Graph -> Gated Residual Cross-Attention Fusion -> Classifier)
+
+    $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; $env:PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"; & "python" training/train.py --config configs/config.yaml --model multimodal
+
+
+--- STEP 5: EVALUATE & COMPARE MODELS (~1-2 min) ---
+Computes CAFA-standard F-max, S-min, AUROC, AUPR, Top-k accuracy, and statistical comparison table:
+
+  $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; & "python" evaluation/evaluate.py --config configs/config.yaml --model all --compare
+
+
+--- STEP 6: GENERATE PUBLICATION FIGURES & REPORTS (~1 min) ---
+Produces ROC curves, PR curves, radar charts, and statistical comparison plots:
+
+  $env:KMP_DUPLICATE_LIB_OK="TRUE"; $env:PYTHONIOENCODING="utf-8"; & "python" finalize.py
+
+
+--- STEP 7: LAUNCH INTERACTIVE WEB APPLICATION ---
+Starts the Streamlit web dashboard for live predictions and explainability:
+
+  & "python" -m streamlit run app.py
+
+
+================================================================================
+🔍 QUICK VERIFICATION & SMOKE TESTS (5 SECONDS)
+================================================================================
+To verify all models, layers, tensor shapes, and loss functions before long runs:
+
+  & "python" _smoke_test.py
+  & "python" test_all_components.py
+
+
+================================================================================
+📁 KEY OUTPUT DIRECTORIES
+================================================================================
+-  Checkpoints:     ProteoFunc_outputs/checkpoints/ (best .pt models & training histories)
+-  Evaluation:      ProteoFunc_outputs/evaluation/ (comparison tables & metrics)
+-  Figures & Plots: ProteoFunc_outputs/figures/ (ROC curves, PR curves, radar charts)
+-  Logs:            ProteoFunc_outputs/logs/ (detailed training logs & TensorBoard)
+-  Processed Graph: data/processed/pyg_graph_data.pt (186k PPI edges)
+-  Embeddings:      data/embeddings/esm2_embeddings.npy (ESM-2 embeddings)
+
+
+================================================================================
+🛠️ TROUBLESHOOTING TIPS
+================================================================================
+1. CUDA Memory Fragmentation:
+   Ensure `$env:PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"` is set (included in commands above).
+
+2. Windows OpenMP Duplicate Library:
+   Ensure `$env:KMP_DUPLICATE_LIB_OK="TRUE"` is set (included in commands above).
+
+3. Windows Terminal Character Encoding:
+   Ensure `$env:PYTHONIOENCODING="utf-8"` is set (included in commands above).
+================================================================================
