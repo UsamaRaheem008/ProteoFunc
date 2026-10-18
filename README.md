@@ -229,8 +229,8 @@ If you use this framework in your research:
 ```bibtex
 @misc{proteofunc2024,
   title  = {ProteoFunc: Multimodal Protein Function Prediction via ESM-2 and GraphSAGE},
-  author = {MSc Bioinformatics Research},
+  author = {Usama Raheem},
   year   = {2024},
-  note   = {GitHub repository}
+  note   = {GitHub repository: https://github.com/UsamaRaheem008/ProteoFunc}
 }
 ```
